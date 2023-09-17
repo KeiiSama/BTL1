@@ -12,24 +12,24 @@ SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 #Thêm background
-bg = pygame.image.load(r'E:\Lập trình Game\BTL1\Background.png')
+bg = pygame.image.load('Background.png')
 bg = pygame.transform.scale(bg, (800, 600))
 
 #Thêm nhạc nền
-backgroud_music = pygame.mixer.Sound('E:\Lập trình Game\BTL1\Background_music.mp3')
+backgroud_music = pygame.mixer.Sound('Background_music.mp3')
 
 
 #Tiêu đề và icon game
 pygame.display.set_caption("BTL 1")
-icon = pygame.image.load(r'E:\Lập trình Game\BTL1\icon.png')
+icon = pygame.image.load('icon.png')
 pygame.display.set_icon(icon)
 
 #Thêm hình ảnh phụ
-bua_image = pygame.image.load(r'E:\Lập trình Game\BTL1\bua.png')
+bua_image = pygame.image.load('bua.png')
 bua_image = pygame.transform.scale(bua_image, (150, 150))
 
 #Tạo font
-font_path = "c:\WINDOWS\Fonts\CHILLER.TTF"
+font_path = "CHILLER.TTF"
 font = pygame.font.Font(font_path, 100)
 
 WHITE = (255, 255, 255)
@@ -59,7 +59,7 @@ def draw_running_game():
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:    
-                    run = False
+                    running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 #Cập nhật vị trí búa theo trỏ chuột
                 if event.button == 1:
