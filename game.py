@@ -1,5 +1,11 @@
 import pygame, sys, time
 from pygame import *
+from dataclasses import dataclass
+
+@dataclass
+class Score:
+    success: int
+    missing: int
 
 pygame.init()
 pygame.mixer.init()
@@ -10,6 +16,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+score = Score(success=0, missing=0)
 
 #Thêm background
 bg = pygame.image.load('Background.png')
@@ -43,6 +50,14 @@ def draw_start_game():
     text_rect.center = button_rect.center
     screen.blit(text, text_rect)
 
+
+def show_score():
+    score_font = pygame.font.Font(font_path, 50)
+    score_text = score_font.render(f"Score: {score.success}", True, WHITE)
+    missing_score_text = score_font.render(f"Missing: {score.missing}", True, WHITE)
+    screen.blit(score_text, (10, 10))
+    screen.blit(missing_score_text, (10, 60))
+
 #Code hoạt động trong game
 def draw_running_game():
     angle = 0
@@ -72,9 +87,13 @@ def draw_running_game():
                     if(angle == 25):
                             angle = 0
                     angle += rotate_speed   
+
+                    #Process score
+                    score.missing+= 1
                             
         #Giao diện bên trong game
         screen.blit(bg, (0, 0))
+        show_score()
         if bua_visible and start_time is not None:
             current_time = pygame.time.get_ticks()
             if current_time - start_time < 250:
