@@ -19,23 +19,25 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 score = Score(success=0, missing=0)
 
 #Thêm background
-bg = pygame.image.load(r'E:\Lập trình Game\BTL1\Background.png')
+bg = pygame.image.load('Background.png')
 bg = pygame.transform.scale(bg, (800, 600))
 
 #Thêm nhạc nền
-backgroud_music = pygame.mixer.Sound('E:\Lập trình Game\BTL1\Background_music.mp3')
+backgroud_music = pygame.mixer.Sound('Background_music.mp3')
 
 #Thêm zombie background
-bg_zom1 = pygame.image.load(r'E:\Lập trình Game\BTL1\bg_zom1.png')
+bg_zom1 = pygame.image.load('bg_zom1.png')
 bg_zom1 = pygame.transform.scale(bg_zom1, (160, 300))
-bg_zom2 = pygame.image.load(r'E:\Lập trình Game\BTL1\bg_zom2.png')
+bg_zom2 = pygame.image.load('bg_zom2.png')
 bg_zom2 = pygame.transform.scale(bg_zom2, (160, 300))
 
 #Thêm zombi trong màn hình trò chơi
-zom_image = pygame.image.load(r'E:\Lập trình Game\BTL1\zombie.png')
+zom_image = pygame.image.load('zombie.png')
 zom_image = pygame.transform.scale(zom_image,(100, 100))
 zom_points = pygame.Rect(0, 300, 750, 200)
 zom_rect = zom_image.get_rect()
+zom_rect_radius = max(zom_rect.size)/2
+zom_visible = False
 
 def choose_random_zom_point():
     x = random.randint(zom_points.left,zom_points.right)
@@ -44,12 +46,13 @@ def choose_random_zom_point():
 
 #Tiêu đề và icon game
 pygame.display.set_caption("BTL 1")
-icon = pygame.image.load(r'E:\Lập trình Game\BTL1\icon.png')
+icon = pygame.image.load('icon.png')
 pygame.display.set_icon(icon)
 
 #Thêm hình ảnh phụ
-bua_image = pygame.image.load(r'E:\Lập trình Game\BTL1\bua.png')
+bua_image = pygame.image.load('bua.png')
 bua_image = pygame.transform.scale(bua_image, (150, 150))
+current_zom_pos = choose_random_zom_point()
 
 #Tạo font
 font_path = "c:\WINDOWS\Fonts\CHILLER.TTF"
@@ -73,8 +76,15 @@ def show_score():
     screen.blit(score_text, (10, 10))
     screen.blit(missing_score_text, (10, 60))
 
+def is_dammed(zombie_pos, dam_pos):
+    if ((dam_pos[0]-zombie_pos[0])**2 + (dam_pos[1]-zombie_pos[1])**2) <= zom_rect_radius**2:
+        return True
+    return False
+
 #Code hoạt động trong game
 def draw_running_game():
+    global current_zom_pos
+    global zom_visible
     angle = 0
     rotate_speed = 25
     
@@ -99,6 +109,7 @@ def draw_running_game():
                 if event.button == 1:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     bua_x, bua_y = mouse_x, mouse_y
+                    print(bua_x, bua_y)
                     bua_visible = True
                     start_time = pygame.time.get_ticks() 
                         
@@ -108,7 +119,11 @@ def draw_running_game():
                     angle += rotate_speed   
                     
                     #Process score
-                    score.missing+= 1
+                    if zom_visible and is_dammed((current_zom_pos[0] + zom_rect.size[0]/2, current_zom_pos[1] + zom_rect.size[1]/2), (bua_x, bua_y)):
+                        zom_visible = False
+                        score.success +=1
+                    else:
+                        score.missing+= 1
                             
         #Giao diện bên trong game
         screen.blit(bg, (0, 0))
@@ -119,8 +134,10 @@ def draw_running_game():
         # Chọn ngẫu nhiên một điểm xuất hiện zombie mới
             current_zom_pos = choose_random_zom_point()
             current_zom_start_time = current_time
-                
-        screen.blit(zom_image, current_zom_pos)
+            zom_visible = True
+
+        if zom_visible:
+            screen.blit(zom_image, current_zom_pos)
         
         if bua_visible and start_time is not None:
             #current_time = pygame.time.get_ticks()
