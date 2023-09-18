@@ -1,5 +1,11 @@
-import pygame, sys, time
+import pygame, sys, time, random
 from pygame import *
+from dataclasses import dataclass
+
+@dataclass
+class Score:
+    success: int
+    missing: int
 
 pygame.init()
 pygame.mixer.init()
@@ -10,6 +16,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+score = Score(success=0, missing=0)
 
 #Thêm background
 bg = pygame.image.load(r'E:\Lập trình Game\BTL1\Background.png')
@@ -18,6 +25,22 @@ bg = pygame.transform.scale(bg, (800, 600))
 #Thêm nhạc nền
 backgroud_music = pygame.mixer.Sound('E:\Lập trình Game\BTL1\Background_music.mp3')
 
+#Thêm zombie background
+bg_zom1 = pygame.image.load(r'E:\Lập trình Game\BTL1\bg_zom1.png')
+bg_zom1 = pygame.transform.scale(bg_zom1, (160, 300))
+bg_zom2 = pygame.image.load(r'E:\Lập trình Game\BTL1\bg_zom2.png')
+bg_zom2 = pygame.transform.scale(bg_zom2, (160, 300))
+
+#Thêm zombi trong màn hình trò chơi
+zom_image = pygame.image.load(r'E:\Lập trình Game\BTL1\zombie.png')
+zom_image = pygame.transform.scale(zom_image,(100, 100))
+zom_points = pygame.Rect(0, 300, 750, 200)
+zom_rect = zom_image.get_rect()
+
+def choose_random_zom_point():
+    x = random.randint(zom_points.left,zom_points.right)
+    y = random.randint(zom_points.top,zom_points.bottom)
+    return x, y
 
 #Tiêu đề và icon game
 pygame.display.set_caption("BTL 1")
@@ -42,6 +65,13 @@ def draw_start_game():
     text_rect = text.get_rect()
     text_rect.center = button_rect.center
     screen.blit(text, text_rect)
+    
+def show_score():
+    score_font = pygame.font.Font(font_path, 50)
+    score_text = score_font.render(f"Score: {score.success}", True, WHITE)
+    missing_score_text = score_font.render(f"Missing: {score.missing}", True, WHITE)
+    screen.blit(score_text, (10, 10))
+    screen.blit(missing_score_text, (10, 60))
 
 #Code hoạt động trong game
 def draw_running_game():
@@ -52,6 +82,10 @@ def draw_running_game():
     bua_visible = False
     start_time = None
     hammer_image = []
+
+    zom_timer = 1500
+
+    current_zom_start_time = 0
     
     running = True
     
@@ -59,7 +93,7 @@ def draw_running_game():
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:    
-                    run = False
+                    running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 #Cập nhật vị trí búa theo trỏ chuột
                 if event.button == 1:
@@ -72,11 +106,24 @@ def draw_running_game():
                     if(angle == 25):
                             angle = 0
                     angle += rotate_speed   
+                    
+                    #Process score
+                    score.missing+= 1
                             
         #Giao diện bên trong game
         screen.blit(bg, (0, 0))
+        show_score()
+        
+        current_time = pygame.time.get_ticks()
+        if current_time - current_zom_start_time >= zom_timer:                         
+        # Chọn ngẫu nhiên một điểm xuất hiện zombie mới
+            current_zom_pos = choose_random_zom_point()
+            current_zom_start_time = current_time
+                
+        screen.blit(zom_image, current_zom_pos)
+        
         if bua_visible and start_time is not None:
-            current_time = pygame.time.get_ticks()
+            #current_time = pygame.time.get_ticks()
             if current_time - start_time < 250:
                 rotated_bua = pygame.transform.rotate(bua_image, angle)
                 bua_rect = rotated_bua.get_rect()
@@ -88,6 +135,15 @@ def draw_running_game():
         
     pygame.quit()
     sys.exit()
+
+#Màn hình Game Over
+def draw_game_over():
+    button_rect = pygame.Rect(300, 250, 200, 80)
+    
+    text = font.render("Game Over", True, BLACK)
+    text_rect = text.get_rect()
+    text_rect.center = button_rect.center
+    screen.blit(text, text_rect)
 
 #Vòng lặp chính 
 game_state = "waiting"
@@ -106,6 +162,8 @@ while run:
                     game_state = "running"
 
     screen.blit(bg, (0,0))
+    screen.blit(bg_zom1, (50, 250))
+    screen.blit(bg_zom2, (600, 270))
     backgroud_music.play(-1)
     if game_state == "waiting":    
         draw_start_game()
