@@ -34,7 +34,7 @@ bg_zom2 = pygame.transform.scale(bg_zom2, (160, 300))
 #Thêm zombi trong màn hình trò chơi
 zom_image = pygame.image.load('zombie.png')
 zom_image = pygame.transform.scale(zom_image,(100, 100))
-zom_points = pygame.Rect(0, 300, 750, 200)
+zom_points = pygame.Rect(0, 300, 600, 200)
 zom_rect = zom_image.get_rect()
 zom_rect_radius = max(zom_rect.size)/2
 zom_visible = False
@@ -152,15 +152,6 @@ def draw_running_game():
         
     pygame.quit()
     sys.exit()
-
-#Màn hình Game Over
-def draw_game_over():
-    button_rect = pygame.Rect(300, 250, 200, 80)
-    
-    text = font.render("Game Over", True, BLACK)
-    text_rect = text.get_rect()
-    text_rect.center = button_rect.center
-    screen.blit(text, text_rect)
 
 #Vòng lặp chính 
 game_state = "waiting"
