@@ -23,7 +23,14 @@ bg = pygame.image.load('Background.png')
 bg = pygame.transform.scale(bg, (800, 600))
 
 #Thêm nhạc nền
-backgroud_music = pygame.mixer.Sound('Background_music.mp3')
+backgroud_music = pygame.mixer.music.load('Background_music.mp3')
+#Thêm hiệu ứng âm thanh lúc vung búa
+swing_sound = pygame.mixer.Sound('swing_sound.wav')
+swing_sound.set_volume(1)
+#Thêm hiệu ứng âm thanh lúc vung búa trúng zombie
+hit_sound = pygame.mixer.Sound('hit_sound.wav')
+hit_sound.set_volume(1)
+
 
 #Thêm zombie background
 bg_zom1 = pygame.image.load('bg_zom1.png')
@@ -111,17 +118,24 @@ def draw_running_game():
                     bua_x, bua_y = mouse_x, mouse_y
                     print(bua_x, bua_y)
                     bua_visible = True
-                    start_time = pygame.time.get_ticks() 
+                    start_time = pygame.time.get_ticks()
+
+                    # Thêm âm thanh khi đập búa
+                    print("Playing swing sound...")
+                    swing_sound.play()
                         
                     #Cập nhật chuyển động búa
                     if(angle == 25):
                             angle = 0
-                    angle += rotate_speed   
+                    angle += rotate_speed
                     
                     #Process score
                     if zom_visible and is_dammed((current_zom_pos[0] + zom_rect.size[0]/2, current_zom_pos[1] + zom_rect.size[1]/2), (bua_x, bua_y)):
                         zom_visible = False
                         score.success +=1
+                        # Thêm âm thanh khi đập búa trúng zombie
+                        print("Playing hit sound...")
+                        hit_sound.play()
                     else:
                         score.missing+= 1
                             
@@ -172,7 +186,7 @@ while run:
     screen.blit(bg, (0,0))
     screen.blit(bg_zom1, (50, 250))
     screen.blit(bg_zom2, (600, 270))
-    backgroud_music.play(-1)
+    pygame.mixer.music.play(-1)
     if game_state == "waiting":    
         draw_start_game()
     elif game_state == "running":
